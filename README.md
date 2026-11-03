@@ -16,3 +16,47 @@ Next after funning everything and committing to Git, I received an error on Git 
         run: mvn clean package -DskipTests
 
 It added -DskipTests
+
+Built the apps docker setup
+
+The apps backend now uses docker and the app and SQL now run in separate containers
+
+The spring boot jar uses:
+
+       .\mvnw.cmd clean package -DskipTests
+
+After docker was running, the containers started with:
+
+       docker compose up --build -d
+
+Then the containers were checked:
+
+       docker compose ps
+
+The app runs here:
+
+              http://localhost:8080
+
+Logs are viewed with this:
+
+       docker compose logs app
+       docker compose logs mysql
+
+Containers were stopped and deleted with this:
+
+       docker compose down
+       docker compose down -v
+
+
+
+
+
+
+
+
+
+
+
+
+
+       
