@@ -65,7 +65,7 @@ jobs:
               sudo apt-get install -y trivy
 
       - name: Scan HIGH and CRITICAL vulnerabilities
-        run: trivy image --severity HIGH,CRITICAL gameflix-backend
+        run: trivy image --severity HIGH,CRITICAL --format table --output trivy-results.txt gameflix-backend
 
       - name: Fail build on CRITICAL vulnerabilities
         run: trivy image --severity CRITICAL --exit-code 1 gameflix-backend
@@ -76,3 +76,9 @@ jobs:
         with:
           name: gameflix-sbom
           path: sbom.cdx.json
+      - name: Archive Trivy results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gameflix-trivy-results
+          path: trivy-results.txt
