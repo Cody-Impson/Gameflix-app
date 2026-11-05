@@ -71,6 +71,7 @@ jobs:
         run: trivy image --severity CRITICAL --exit-code 1 gameflix-backend
 
       - name: Archive SBOM
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: gameflix-sbom
