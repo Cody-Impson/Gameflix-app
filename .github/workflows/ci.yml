@@ -46,8 +46,32 @@ jobs:
 
         run: mvn clean package -DskipTests
 
-
-
       - name: Build Docker image
-
         run: docker build -t gameflix-backend .
+
+      - name: Install Syft
+        run: curl -sSfL https://get.anchore.io/syft | sudo sh -s -- -b /usr/local/bin
+
+      - name: Generate SBOM
+        run: syft gameflix-backend -o cyclonedx-json=sbom.cdx.json
+
+      - name: Install Trivy
+        run: |
+              sudo apt-get update
+              sudo apt-get install -y wget apt-transport-https gnupg
+              wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+              echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee /etc/apt/sources.list.d/trivy.list
+              sudo apt-get update
+              sudo apt-get install -y trivy
+
+      - name: Scan HIGH and CRITICAL vulnerabilities
+        run: trivy image --severity HIGH,CRITICAL gameflix-backend
+
+      - name: Fail build on CRITICAL vulnerabilities
+        run: trivy image --severity CRITICAL --exit-code 1 gameflix-backend
+
+      - name: Archive SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: gameflix-sbom
+          path: sbom.cdx.json
